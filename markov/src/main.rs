@@ -1,7 +1,7 @@
+use fxhash::FxHashMap;
 use rand::{rng, seq::IndexedRandom};
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashMap,
     env, fs,
     io::{self, BufRead},
 };
@@ -10,7 +10,7 @@ use tiktoken_rs::{o200k_base, CoreBPE};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MarkovModel {
     order: usize,
-    transitions: HashMap<Vec<u32>, Vec<u32>>,
+    transitions: FxHashMap<Vec<u32>, Vec<u32>>,
 }
 
 impl MarkovModel {
@@ -21,7 +21,7 @@ impl MarkovModel {
 
         Self {
             order,
-            transitions: HashMap::new(),
+            transitions: FxHashMap::default(),
         }
     }
 
@@ -105,7 +105,7 @@ fn main() {
 
                 model.train(&bpe, &line);
 
-                eprintln!("[dbg] fed line '{}'", line);
+                // eprintln!("[dbg] fed line '{}'", line);
             }
 
             fs::write(path, bincode::serialize(&model).unwrap()).unwrap();
