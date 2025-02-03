@@ -78,6 +78,11 @@ impl MarkovModel {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
+    if args.len() < 3 {
+        eprintln!("usage: {} train|complete <model>", &args[0]);
+        return;
+    }
+
     let action = &args[1];
     let path = &args[2];
 
