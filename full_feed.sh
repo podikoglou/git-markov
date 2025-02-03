@@ -12,8 +12,10 @@ ffeed() {
 
     mkdir -p models/order-$order
 
-    ./feed.sh $query $path $order
+    ./feed.sh $query $path $order &
   done
+
+  wait
 }
 
 ffeed '*.html' html.bc
