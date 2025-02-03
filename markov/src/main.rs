@@ -5,7 +5,7 @@ use std::{
     env, fs,
     io::{self, BufRead},
 };
-use tiktoken_rs::o200k_base;
+use tiktoken_rs::{o200k_base, CoreBPE};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MarkovModel {
@@ -18,16 +18,16 @@ impl MarkovModel {
         if order == 0 {
             panic!("Order of Markov Model must be at least 1");
         }
+
         Self {
             order,
             transitions: HashMap::new(),
         }
     }
 
-    pub fn train(&mut self, text: &str) {
+    pub fn train(&mut self, bpe: &CoreBPE, text: &str) {
         // let tokens: Vec<String> = text.split_whitespace().map(|s| s.to_string()).collect();
 
-        let bpe = o200k_base().unwrap();
         let tokens = bpe.encode_with_special_tokens(text);
 
         if tokens.len() <= self.order {
@@ -45,8 +45,7 @@ impl MarkovModel {
         }
     }
 
-    pub fn generate(&self, start: String, length: usize) -> String {
-        let bpe = o200k_base().unwrap();
+    pub fn generate(&self, bpe: &CoreBPE, start: String, length: usize) -> String {
         let start = bpe.encode_with_special_tokens(&start);
 
         if start.len() != self.order {
@@ -89,6 +88,8 @@ fn main() {
         MarkovModel::new(2)
     };
 
+    let bpe = o200k_base().unwrap();
+
     match action.as_str() {
         "train" => {
             // train
@@ -97,7 +98,7 @@ fn main() {
             for line in lock.lines() {
                 let line = line.unwrap();
 
-                model.train(&line);
+                model.train(&bpe, &line);
 
                 eprintln!("[dbg] fed line '{}'", line);
             }
@@ -114,7 +115,7 @@ fn main() {
             for line in lock.lines() {
                 let line = line.unwrap();
 
-                let completion = model.generate(line, 8);
+                let completion = model.generate(&bpe, line, 8);
 
                 println!("{}", completion);
             }
