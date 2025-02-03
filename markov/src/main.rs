@@ -116,7 +116,7 @@ fn main() {
             for line in lock.lines() {
                 match line {
                     Ok(line) => model.train(&bpe, &line),
-                    Err(_) => todo!(),
+                    Err(_) => continue,
                 }
 
                 // eprintln!("[dbg] fed line '{}'", line);
