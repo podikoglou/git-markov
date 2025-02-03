@@ -1,7 +1,7 @@
 #!/bin/bash
 
 feed_markov() {
-  cat $1 | markov/target/release/markov train model.bc
+  markov/target/release/markov train model.bc < $1
 }
 
 export -f feed_markov
