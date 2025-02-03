@@ -17,8 +17,9 @@ cargo b -r
 
 ## 3. feed a model
 
+(2 is the order -- you may customize it)
 ```
-./feed.sh '*.ts' models/typescript.bc
+./feed.sh '*.ts' models/typescript.bc 2
 ```
 
 ## 4. complete some input using a model

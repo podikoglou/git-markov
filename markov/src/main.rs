@@ -86,11 +86,18 @@ fn main() {
     let action = &args[1];
     let path = &args[2];
 
+    if action == "train" && args.len() < 4 {
+        eprintln!("usage: {} train <model> <order>", &args[0]);
+        return;
+    }
+
     let mut model: MarkovModel = if fs::exists(path).is_ok_and(|v| v) {
         let contents = fs::read(path).unwrap();
         bincode::deserialize(&contents).unwrap()
     } else {
-        MarkovModel::new(2)
+        let order: usize = args[3].parse().unwrap();
+
+        MarkovModel::new(order)
     };
 
     let bpe = o200k_base().unwrap();
