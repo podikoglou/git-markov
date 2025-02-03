@@ -2,7 +2,8 @@ use fxhash::FxHashMap;
 use rand::{rng, seq::IndexedRandom};
 use serde::{Deserialize, Serialize};
 use std::{
-    env, fs,
+    env,
+    fs::{self, File},
     io::{self, BufRead},
 };
 use tiktoken_rs::{o200k_base, CoreBPE};
@@ -92,8 +93,13 @@ fn main() {
     }
 
     let mut model: MarkovModel = if fs::exists(path).is_ok_and(|v| v) {
-        let contents = fs::read(path).unwrap();
-        bincode::deserialize(&contents).unwrap()
+        let file = File::open(path).unwrap();
+
+        let buffered_reader = io::BufReader::new(file);
+        let decoder = zstd::Decoder::new(buffered_reader).unwrap();
+
+        let decoded = bincode::deserialize_from(decoder).unwrap();
+        decoded
     } else {
         let order: usize = args[3].parse().unwrap();
 
@@ -108,14 +114,21 @@ fn main() {
             let lock = io::stdin().lock();
 
             for line in lock.lines() {
-                let line = line.unwrap();
-
-                model.train(&bpe, &line);
+                match line {
+                    Ok(line) => model.train(&bpe, &line),
+                    Err(_) => todo!(),
+                }
 
                 // eprintln!("[dbg] fed line '{}'", line);
             }
 
-            fs::write(path, bincode::serialize(&model).unwrap()).unwrap();
+            let file = File::create(path).unwrap();
+            let mut encoder = zstd::Encoder::new(&file, 22).unwrap();
+
+            bincode::serialize_into(&mut encoder, &model).unwrap();
+
+            encoder.finish().unwrap();
+
             eprintln!(
                 "[dbg] model file written with {} transitions",
                 model.transitions.len()

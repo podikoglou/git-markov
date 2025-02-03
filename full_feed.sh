@@ -13,7 +13,6 @@ ffeed() {
     mkdir -p models/order-$order
 
     ./feed.sh $query $path $order
-    bzip2 $path
   done
 }
 

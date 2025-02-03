@@ -9,3 +9,4 @@ fxhash = "0.2.1"
 rand = "0.9.0"
 serde = { version = "1.0.217", features = ["derive"] }
 tiktoken-rs = "0.6.0"
+zstd = "0.13.2"
